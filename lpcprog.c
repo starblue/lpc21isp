@@ -119,6 +119,15 @@ static const unsigned int SectorTable_18xx[] =
     65536, 65536, 65536, 65536, 65536, 65536, 65536
 };
 
+// Used for LPC40xx devices
+static const unsigned int SectorTable_40xx[] =
+{
+     4096,  4096,  4096,  4096,  4096,  4096,  4096,  4096,
+     4096,  4096,  4096,  4096,  4096,  4096,  4096,  4096,
+    32768, 32768, 32768, 32768, 32768, 32768, 32768, 32768,
+    32768, 32768, 32768, 32768, 32768, 32768
+};
+
 // Used for LPC43xx devices
 static const unsigned int SectorTable_43xx[] =
 {
@@ -145,7 +154,7 @@ static LPC_DEVICE_TYPE LPCtypes[] =
 {
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, CHIP_VARIANT_NONE },  /* unknown */
 
-   // id,        id2,  use id2, name of product,          flash size, ram size, total number of sector, max copy size, sector table, chip variant
+   // id,            id2,  use id2, name of product,          flash size, ram size, total number of sector, max copy size, sector table, chip variant
 
    { 0x00008021, 0x00000000, 0, "802M001JDH20",                   16,   2, 16, 1024, SectorTable_8xx,  CHIP_VARIANT_LPC8XX  },
    { 0x00008022, 0x00000000, 0, "802M011JDH20",                   16,   2, 16, 1024, SectorTable_8xx,  CHIP_VARIANT_LPC8XX  },
@@ -283,6 +292,7 @@ static LPC_DEVICE_TYPE LPCtypes[] =
    { 0x25011722, 0x00000000, 0, "1754",                          128,  32, 18, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
    { 0x25011723, 0x00000000, 0, "1756",                          256,  32, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
    { 0x25013F37, 0x00000000, 0, "1758",                          512,  64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+   // id,            id2,  use id2, name of product,          flash size, ram size, total number of sector, max copy size, sector table, chip variant
    { 0x25113737, 0x00000000, 0, "1759",                          512,  64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
    { 0x26012033, 0x00000000, 0, "1763",                          256,  64, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
    { 0x26011922, 0x00000000, 0, "1764",                          128,  32, 18, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
@@ -367,6 +377,11 @@ static LPC_DEVICE_TYPE LPCtypes[] =
    { 0x1600FF35, 0x00000000, 0, "2468",                          512,  98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
    { 0x1701FF30, 0x00000000, 0, "2470",                            0,  98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
    { 0x1701FF35, 0x00000000, 0, "2478",                          512,  98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+   
+   { 0x47011132, 0x00000000, 0, "4074",                          128,  40, 18, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
+   { 0x47191F43, 0x00000000, 0, "4076",                          256,  80, 22, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
+   { 0x47193F47, 0x00000000, 0, "4078",                          512,  96, 30, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
+   { 0x481D3F47, 0x00000000, 0, "4088",                          512,  96, 30, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
 
    { 0xA00A8B3F, 0x00000000, 1, "4310",                            0, 168,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
    { 0xA00BCB3F, 0x00000080, 1, "4312",                          512, 104, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
@@ -952,6 +967,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
             DebugPrintf(3, "Position 0x14 patched: ivt_CRC = 0x%08lX\n", ivt_CRC);
         }
         else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX ||
+		LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
@@ -1253,6 +1269,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC11XX ||
                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
+               LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX)
             {
                 if ((CopyLength % (45 * 4)) != 0)
@@ -1277,6 +1294,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC11XX ||
                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
+               LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX)
             {
                 block_CRC = 0;
@@ -1634,6 +1652,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
             sprintf(tmpString, "G %ld A\r\n", IspEnvironment->StartAddress);
         }
         else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX ||
+		LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
@@ -1671,6 +1690,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
                 sprintf(ExpectedAnswer, "G %ld A\n0", IspEnvironment->StartAddress);
             }
             else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX ||
+		    LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
                     LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
                     LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
                     LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
@@ -1710,6 +1730,10 @@ unsigned long ReturnValueLpcRamStart(ISP_ENVIRONMENT *IspEnvironment)
   {
     return LPC_RAMSTART_LPC43XX;
   }
+  else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX)
+  {
+    return LPC_RAMSTART_LPC40XX;
+  }
   else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
   {
     return LPC_RAMSTART_LPC2XXX;
@@ -1748,6 +1772,10 @@ unsigned long ReturnValueLpcRamBase(ISP_ENVIRONMENT *IspEnvironment)
   if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX)
   {
     return LPC_RAMBASE_LPC43XX;
+  }
+  else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX)
+  {
+    return LPC_RAMBASE_LPC40XX;
   }
   else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
   {

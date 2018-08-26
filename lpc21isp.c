@@ -410,12 +410,15 @@ Change-History:
                   Updated .gitignore file (Now with ignored *.layout)
                   Removed *.layout from lpc21isp project
                   Removed *.depend from lpc21isp project
+                  1.97   2014-01-09 Martin Maurer
+1.98	2016-01-17 Cristiano Rodrigues
+		  Add some new chip ids for LPC40xx
 */
 
 // Please don't use TABs in the source code !!!
 
 // Don't forget to update the version string that is on the next line
-#define VERSION_STR "1.97"
+#define VERSION_STR "1.98"
 
 #if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
 static char RxTmpBuf[256];        // save received data to this buffer for half-duplex
