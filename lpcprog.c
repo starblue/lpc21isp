@@ -103,7 +103,7 @@ static const unsigned int SectorTable_15xx[] =
      4096,  4096,  4096,  4096,  4096,  4096,  4096,  4096
 };
 
-// Used for LPC17xx devices
+// Used for LPC17xx and LPC40xx devices
 static const unsigned int SectorTable_17xx[] =
 {
      4096,  4096,  4096,  4096,  4096,  4096,  4096,  4096,
@@ -112,24 +112,8 @@ static const unsigned int SectorTable_17xx[] =
     32768, 32768, 32768, 32768, 32768, 32768
 };
 
-// Used for LPC18xx devices
+// Used for LPC18xx and LPC43xx devices
 static const unsigned int SectorTable_18xx[] =
-{
-     8192,  8192,  8192,  8192,  8192,  8192,  8192,  8192,
-    65536, 65536, 65536, 65536, 65536, 65536, 65536
-};
-
-// Used for LPC40xx devices
-static const unsigned int SectorTable_40xx[] =
-{
-     4096,  4096,  4096,  4096,  4096,  4096,  4096,  4096,
-     4096,  4096,  4096,  4096,  4096,  4096,  4096,  4096,
-    32768, 32768, 32768, 32768, 32768, 32768, 32768, 32768,
-    32768, 32768, 32768, 32768, 32768, 32768
-};
-
-// Used for LPC43xx devices
-static const unsigned int SectorTable_43xx[] =
 {
      8192,  8192,  8192,  8192,  8192,  8192,  8192,  8192,
     65536, 65536, 65536, 65536, 65536, 65536, 65536
@@ -378,27 +362,27 @@ static LPC_DEVICE_TYPE LPCtypes[] =
    { 0x1701FF30, 0x00000000, 0, "2470",                            0,  98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
    { 0x1701FF35, 0x00000000, 0, "2478",                          512,  98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
 
-   { 0x47011132, 0x00000000, 0, "4074",                          128,  40, 18, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
-   { 0x47191F43, 0x00000000, 0, "4076",                          256,  80, 22, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
-   { 0x47193F47, 0x00000000, 0, "4078",                          512,  96, 30, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
-   { 0x481D3F47, 0x00000000, 0, "4088",                          512,  96, 30, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
+   { 0x47011132, 0x00000000, 0, "4074",                          128,  40, 18, 4096, SectorTable_17xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
+   { 0x47191F43, 0x00000000, 0, "4076",                          256,  80, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
+   { 0x47193F47, 0x00000000, 0, "4078",                          512,  96, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
+   { 0x481D3F47, 0x00000000, 0, "4088",                          512,  96, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
 
-   { 0xA00A8B3F, 0x00000000, 1, "4310",                            0, 168,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA00BCB3F, 0x00000080, 1, "4312",                          512, 104, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA00BCB3F, 0x00000044, 1, "4313",                          512, 104, 11, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA001CB3F, 0x00000022, 1, "4315",                          768, 136, 13, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA001CB3F, 0x00000000, 1, "4317",                         1024, 136, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA0008B3C, 0x00000000, 1, "4320",                            0, 200,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA00BCB3C, 0x00000080, 1, "4322",                          512, 104, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA00BCB3C, 0x00000044, 1, "4323",                          512, 104, 11, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA001CB3C, 0x00000022, 1, "4325",                          768, 136, 13, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA001CB3C, 0x00000000, 1, "4327",                         1024, 136, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA0000A30, 0x00000000, 1, "4330",                            0, 264,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA001CA30, 0x00000044, 1, "4333",                          512, 512, 11, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA001CA30, 0x00000000, 1, "4337",                         1024, 512, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
-   { 0xA0000830, 0x00000000, 1, "4350",                            0, 264,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA001C830, 0x00000044, 1, "4353",                          512, 512, 11, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA001C830, 0x00000000, 1, "4357",                         1024, 512, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }  /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA00A8B3F, 0x00000000, 1, "4310",                            0, 168,  0, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA00BCB3F, 0x00000080, 1, "4312",                          512, 104, 15, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA00BCB3F, 0x00000044, 1, "4313",                          512, 104, 11, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA001CB3F, 0x00000022, 1, "4315",                          768, 136, 13, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA001CB3F, 0x00000000, 1, "4317",                         1024, 136, 15, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA0008B3C, 0x00000000, 1, "4320",                            0, 200,  0, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA00BCB3C, 0x00000080, 1, "4322",                          512, 104, 15, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA00BCB3C, 0x00000044, 1, "4323",                          512, 104, 11, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA001CB3C, 0x00000022, 1, "4325",                          768, 136, 13, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA001CB3C, 0x00000000, 1, "4327",                         1024, 136, 15, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA0000A30, 0x00000000, 1, "4330",                            0, 264,  0, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA001CA30, 0x00000044, 1, "4333",                          512, 512, 11, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA001CA30, 0x00000000, 1, "4337",                         1024, 512, 15, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA0000830, 0x00000000, 1, "4350",                            0, 264,  0, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA001C830, 0x00000044, 1, "4353",                          512, 512, 11, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA001C830, 0x00000000, 1, "4357",                         1024, 512, 15, 4096, SectorTable_18xx, CHIP_VARIANT_LPC43XX }  /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
 };
 
 /***************************** NXP Download *********************************/
