@@ -377,7 +377,7 @@ static LPC_DEVICE_TYPE LPCtypes[] =
    { 0x1600FF35, 0x00000000, 0, "2468",                          512,  98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
    { 0x1701FF30, 0x00000000, 0, "2470",                            0,  98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
    { 0x1701FF35, 0x00000000, 0, "2478",                          512,  98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-   
+
    { 0x47011132, 0x00000000, 0, "4074",                          128,  40, 18, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
    { 0x47191F43, 0x00000000, 0, "4076",                          256,  80, 22, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
    { 0x47193F47, 0x00000000, 0, "4078",                          512,  96, 30, 4096, SectorTable_40xx, CHIP_VARIANT_LPC40XX }, /*From UM10562 Rev. 03 -- 12 Mar 2014 */
@@ -967,7 +967,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
             DebugPrintf(3, "Position 0x14 patched: ivt_CRC = 0x%08lX\n", ivt_CRC);
         }
         else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX ||
-		LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
+                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
@@ -1652,7 +1652,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
             sprintf(tmpString, "G %ld A\r\n", IspEnvironment->StartAddress);
         }
         else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX ||
-		LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
+                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
                 LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
