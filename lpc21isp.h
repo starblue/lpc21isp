@@ -172,6 +172,7 @@ typedef struct
     unsigned char ControlLines;
     unsigned char ControlLinesSwapped;
     unsigned char ControlLinesInverted;
+    unsigned char ControlLinesWithoutWait;
     unsigned char LogFile;
     FILE_LIST *f_list;                  // List of files to read in.
     int nQuestionMarks; // how many times to try to synchronise
@@ -214,6 +215,7 @@ typedef struct
     unsigned long BinaryOffset;
     unsigned long StartAddress;
     unsigned long BinaryMemSize;
+    unsigned long BeginSector;
 
 #if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
     HANDLE hCom;
