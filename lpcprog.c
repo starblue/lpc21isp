@@ -645,6 +645,8 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
     char tmp_string[64];
     char * cmdstr;
 
+    int beginsector = IspEnvironment->BeginSector; // add by @taisukef
+
 #if !defined COMPILE_FOR_LPC21
 
 #if defined __BORLANDC__
@@ -824,6 +826,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
     if (strncmp(Answer + strlen(temp), "0\n", 2) == 0)
     {
         strippedAnswer = Answer + strlen(temp) + 2;
+        *(strippedAnswer + 1) = '.';
         /*
         int maj, min, build;
         if (sscanf(strippedAnswer, "%d %d %d", &build, &min, &maj) == 2) {
@@ -920,77 +923,79 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
             uuencode_table[i] = (char)(0x20 + i);
         }
 
-        if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
-        {
-            // Patch 0x14, otherwise it is not running and jumps to boot mode
-
-            ivt_CRC = 0;
-
-            // Clear the vector at 0x14 so it doesn't affect the checksum:
-            for (i = 0; i < 4; i++)
+        if (beginsector == 0) {
+            if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
             {
-                IspEnvironment->BinaryContent[i + 0x14] = 0;
-            }
+                // Patch 0x14, otherwise it is not running and jumps to boot mode
 
-            // Calculate a native checksum of the little endian vector table:
-            for (i = 0; i < (4 * 8);) {
-                ivt_CRC += IspEnvironment->BinaryContent[i++];
-                ivt_CRC += IspEnvironment->BinaryContent[i++] << 8;
-                ivt_CRC += IspEnvironment->BinaryContent[i++] << 16;
-                ivt_CRC += IspEnvironment->BinaryContent[i++] << 24;
-            }
+                ivt_CRC = 0;
 
-            /* Negate the result and place in the vector at 0x14 as little endian
-            * again. The resulting vector table should checksum to 0. */
-            ivt_CRC = (unsigned long) (0 - ivt_CRC);
-            for (i = 0; i < 4; i++)
+                // Clear the vector at 0x14 so it doesn't affect the checksum:
+                for (i = 0; i < 4; i++)
+                {
+                    IspEnvironment->BinaryContent[i + 0x14] = 0;
+                }
+
+                // Calculate a native checksum of the little endian vector table:
+                for (i = 0; i < (4 * 8);) {
+                    ivt_CRC += IspEnvironment->BinaryContent[i++];
+                    ivt_CRC += IspEnvironment->BinaryContent[i++] << 8;
+                    ivt_CRC += IspEnvironment->BinaryContent[i++] << 16;
+                    ivt_CRC += IspEnvironment->BinaryContent[i++] << 24;
+                }
+
+                /* Negate the result and place in the vector at 0x14 as little endian
+                * again. The resulting vector table should checksum to 0. */
+                ivt_CRC = (unsigned long) (0 - ivt_CRC);
+                for (i = 0; i < 4; i++)
+                {
+                    IspEnvironment->BinaryContent[i + 0x14] = (unsigned char)(ivt_CRC >> (8 * i));
+                }
+
+                DebugPrintf(3, "Position 0x14 patched: ivt_CRC = 0x%08lX\n", ivt_CRC);
+            }
+            else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX ||
+                    LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
+                    LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
+                    LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
+                    LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
+                    LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC11XX ||
+                    LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC8XX ||
+                    LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC15XX)
             {
-                IspEnvironment->BinaryContent[i + 0x14] = (unsigned char)(ivt_CRC >> (8 * i));
+                // Patch 0x1C, otherwise it is not running and jumps to boot mode
+
+                ivt_CRC = 0;
+
+                // Clear the vector at 0x1C so it doesn't affect the checksum:
+                for (i = 0; i < 4; i++)
+                {
+                    IspEnvironment->BinaryContent[i + 0x1C] = 0;
+                }
+
+                // Calculate a native checksum of the little endian vector table:
+                for (i = 0; i < (4 * 8);) {
+                    ivt_CRC += IspEnvironment->BinaryContent[i++];
+                    ivt_CRC += IspEnvironment->BinaryContent[i++] << 8;
+                    ivt_CRC += IspEnvironment->BinaryContent[i++] << 16;
+                    ivt_CRC += IspEnvironment->BinaryContent[i++] << 24;
+                }
+
+                /* Negate the result and place in the vector at 0x1C as little endian
+                * again. The resulting vector table should checksum to 0. */
+                ivt_CRC = (unsigned long) (0 - ivt_CRC);
+                for (i = 0; i < 4; i++)
+                {
+                    IspEnvironment->BinaryContent[i + 0x1C] = (unsigned char)(ivt_CRC >> (8 * i));
+                }
+
+                DebugPrintf(3, "Position 0x1C patched: ivt_CRC = 0x%08lX\n", ivt_CRC);
             }
-
-            DebugPrintf(3, "Position 0x14 patched: ivt_CRC = 0x%08lX\n", ivt_CRC);
-        }
-        else if(LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC43XX ||
-                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC40XX ||
-                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC18XX ||
-                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
-                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
-                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC11XX ||
-                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC8XX ||
-                LPCtypes[IspEnvironment->DetectedDevice].ChipVariant == CHIP_VARIANT_LPC15XX)
-        {
-            // Patch 0x1C, otherwise it is not running and jumps to boot mode
-
-            ivt_CRC = 0;
-
-            // Clear the vector at 0x1C so it doesn't affect the checksum:
-            for (i = 0; i < 4; i++)
+            else
             {
-                IspEnvironment->BinaryContent[i + 0x1C] = 0;
+              DebugPrintf(1, "Internal error: wrong chip variant %d (detected device %d)\n", LPCtypes[IspEnvironment->DetectedDevice].ChipVariant, IspEnvironment->DetectedDevice);
+              exit(1);
             }
-
-            // Calculate a native checksum of the little endian vector table:
-            for (i = 0; i < (4 * 8);) {
-                ivt_CRC += IspEnvironment->BinaryContent[i++];
-                ivt_CRC += IspEnvironment->BinaryContent[i++] << 8;
-                ivt_CRC += IspEnvironment->BinaryContent[i++] << 16;
-                ivt_CRC += IspEnvironment->BinaryContent[i++] << 24;
-            }
-
-            /* Negate the result and place in the vector at 0x1C as little endian
-            * again. The resulting vector table should checksum to 0. */
-            ivt_CRC = (unsigned long) (0 - ivt_CRC);
-            for (i = 0; i < 4; i++)
-            {
-                IspEnvironment->BinaryContent[i + 0x1C] = (unsigned char)(ivt_CRC >> (8 * i));
-            }
-
-            DebugPrintf(3, "Position 0x1C patched: ivt_CRC = 0x%08lX\n", ivt_CRC);
-        }
-        else
-        {
-          DebugPrintf(1, "Internal error: wrong chip variant %d (detected device %d)\n", LPCtypes[IspEnvironment->DetectedDevice].ChipVariant, IspEnvironment->DetectedDevice);
-          exit(1);
         }
     }
 
@@ -1046,20 +1051,21 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
       ControlXonXoffSerialPort(IspEnvironment, 0);
     }
 
+    int offset = 0;
     // Start with sector 1 and go upward... Sector 0 containing the interrupt vectors
     // will be loaded last, since it contains a checksum and device will re-enter
     // bootloader mode as long as this checksum is invalid.
     DebugPrintf(2, "Will start programming at Sector 1 if possible, and conclude with Sector 0 to ensure that checksum is written last.\n");
-    if (LPCtypes[IspEnvironment->DetectedDevice].SectorTable[0] >= IspEnvironment->BinaryLength)
+    if (beginsector > 0 || LPCtypes[IspEnvironment->DetectedDevice].SectorTable[0] >= IspEnvironment->BinaryLength)
     {
-        Sector = 0;
-        SectorStart = 0;
+        Sector = beginsector;
+        offset = beginsector * LPCtypes[IspEnvironment->DetectedDevice].SectorTable[0];
     }
     else
     {
-        SectorStart = LPCtypes[IspEnvironment->DetectedDevice].SectorTable[0];
         Sector = 1;
     }
+    SectorStart = Sector * LPCtypes[IspEnvironment->DetectedDevice].SectorTable[0];
 
     if (IspEnvironment->WipeDevice == 1)
     {
@@ -1105,7 +1111,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
           DebugPrintf(2, "ATTENTION: Only bank A was wiped!!!\n");
         }
     }
-    else{
+    else if (beginsector == 0) {
         //no wiping requested: erasing sector 0 first
         DebugPrintf(2, "Erasing sector 0 first, to invalidate checksum. ");
 
@@ -1202,9 +1208,9 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
         }
 
         SectorLength = LPCtypes[IspEnvironment->DetectedDevice].SectorTable[Sector];
-        if (SectorLength > IspEnvironment->BinaryLength - SectorStart)
+        if (SectorLength > IspEnvironment->BinaryLength - SectorStart + offset)
         {
-            SectorLength = IspEnvironment->BinaryLength - SectorStart;
+            SectorLength = IspEnvironment->BinaryLength - SectorStart + offset;
         }
 
         for (SectorOffset = 0; SectorOffset < SectorLength; SectorOffset += SectorChunk)
@@ -1213,7 +1219,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
             if (SectorOffset == 0) {
                 for (SectorOffset = 0; SectorOffset < SectorLength; ++SectorOffset)
                 {
-                    if (IspEnvironment->BinaryContent[SectorStart + SectorOffset] != 0xFF)
+                    if (IspEnvironment->BinaryContent[SectorStart + SectorOffset - offset] != 0xFF)
                         break;
                 }
                 if (SectorOffset == SectorLength) // all data contents were 0xFFs
@@ -1285,7 +1291,7 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
                 Line = 0;
 
                 // Transfer blocks of 45 * 4 bytes to RAM
-                for (Pos = SectorStart + SectorOffset; (Pos < SectorStart + SectorOffset + CopyLength) && (Pos < IspEnvironment->BinaryLength); Pos += (45 * 4))
+                for (Pos = SectorStart + SectorOffset; (Pos < SectorStart + SectorOffset + CopyLength) && (Pos < IspEnvironment->BinaryLength + offset); Pos += (45 * 4))
                 {
                     for (Block = 0; Block < 4; Block++)  // Each block 45 bytes
                     {
@@ -1311,11 +1317,11 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
                             if ( (IspEnvironment->BinaryOffset <  ReturnValueLpcRamStart(IspEnvironment))
                                ||(IspEnvironment->BinaryOffset >= ReturnValueLpcRamStart(IspEnvironment)+(LPCtypes[IspEnvironment->DetectedDevice].RAMSize*1024)))
                             { // Flash: use full memory
-                                c = IspEnvironment->BinaryContent[Pos + Block * 45 + BlockOffset];
+                                c = IspEnvironment->BinaryContent[Pos + Block * 45 + BlockOffset - offset];
                             }
                             else
                             { // RAM: Skip first 0x200 bytes, these are used by the download program in LPC21xx
-                                c = IspEnvironment->BinaryContent[Pos + Block * 45 + BlockOffset + 0x200];
+                                c = IspEnvironment->BinaryContent[Pos + Block * 45 + BlockOffset + 0x200 - offset];
                             }
 
                             block_CRC += c;
@@ -1499,14 +1505,14 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
                       CopyLengthPartialRemainingBytes = 256;
                     }
 
-                    SendComPortBlock(IspEnvironment, &IspEnvironment->BinaryContent[SectorStart + SectorOffset + CopyLengthPartialOffset], CopyLengthPartialRemainingBytes);
+                    SendComPortBlock(IspEnvironment, &IspEnvironment->BinaryContent[SectorStart + SectorOffset + CopyLengthPartialOffset - offset], CopyLengthPartialRemainingBytes);
 
                     if (ReceiveComPortBlockComplete(IspEnvironment, &BigAnswer, CopyLengthPartialRemainingBytes, 10000) != 0)
                     {
                         return (ERROR_WRITE_DATA);
                     }
 
-                    if(memcmp(&IspEnvironment->BinaryContent[SectorStart + SectorOffset + CopyLengthPartialOffset], BigAnswer, CopyLengthPartialRemainingBytes))
+                    if(memcmp(&IspEnvironment->BinaryContent[SectorStart + SectorOffset + CopyLengthPartialOffset - offset], BigAnswer, CopyLengthPartialRemainingBytes))
                     {
                         return (ERROR_WRITE_DATA);
                     }
@@ -1595,7 +1601,10 @@ int NxpDownload(ISP_ENVIRONMENT *IspEnvironment)
         DebugPrintf(2, "\n");
         fflush(stdout);
 
-        if ((SectorStart + SectorLength) >= IspEnvironment->BinaryLength && Sector!=0)
+        if (beginsector > 0 && SectorStart + SectorLength >= IspEnvironment->BinaryLength + offset) {
+            break;
+        }
+        if (beginsector == 0 && SectorStart + SectorLength >= IspEnvironment->BinaryLength + offset && Sector != 0)
         {
             Sector = 0;
             SectorStart = 0;

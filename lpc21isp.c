@@ -416,6 +416,9 @@ Change-History:
                   Add support for LPC83x, LPC84x and LPC80x
        2018-08-27 Jürgen Stuber
                   Add support for LP15xx
+       2019-05-03 Taisuke Fukuno
+                  Add option -sector<n> (ex. '-sector6' to upload to sector 6)
+                  Add option -controlwithoutwait
 */
 
 // Please don't use TABs in the source code !!!
@@ -1499,6 +1502,13 @@ static void ReadArguments(ISP_ENVIRONMENT *IspEnvironment, unsigned int argc, ch
                 continue;
             }
 
+            if (stricmp(argv[i], "-controlwithoutwait") == 0)
+            {
+                IspEnvironment->ControlLinesWithoutWait = 1;
+                DebugPrintf(3, "Reduce Sleep when use control lines.\n");
+                continue;
+            }
+
             if (stricmp(argv[i], "-halfduplex") == 0)
             {
                 IspEnvironment->HalfDuplex = 1;
@@ -1542,6 +1552,18 @@ static void ReadArguments(ISP_ENVIRONMENT *IspEnvironment, unsigned int argc, ch
                 continue;
             }
 #endif
+
+            if(strnicmp(argv[i],"-sector", 7) == 0)
+            {
+                int beginsector = atoi(&argv[i][7]);
+                if (beginsector > 0) {
+                    IspEnvironment->BeginSector = beginsector;
+                    DebugPrintf(3, "Begin Scetor: %d.\n", IspEnvironment->BeginSector);
+                } else {
+                    fprintf(stderr,"invalid argument for -sector: \"%s\"\n", argv[i]);
+                }
+                continue;
+            }
 
 #ifdef TERMINAL_SUPPORT
             if (CheckTerminalParameters(IspEnvironment, argv[i]))
@@ -1625,6 +1647,7 @@ static void ReadArguments(ISP_ENVIRONMENT *IspEnvironment, unsigned int argc, ch
                        "                      (Reset = RTS, EnableBootLoader = DTR)\n"
                        "         -controlinv  Invert state of RTS & DTR \n"
                        "                      (0=true/assert/set, 1=false/deassert/clear).\n"
+                       "         -sector<n>   set the sector to upload\n"
                        "         -verify      Verify the data in Flash after every writes to\n"
                        "                      sector. To detect errors in writing to Flash ROM\n"
                        "         -logfile     for enabling logging of terminal output to lpc21isp.log\n"
@@ -1671,9 +1694,11 @@ void ResetTarget(ISP_ENVIRONMENT *IspEnvironment, TARGET_MODE mode)
         /* Reset and jump to boot loader.                       */
         case PROGRAM_MODE:
             ControlModemLines(IspEnvironment, 1, 1);
-            Sleep(100);
-            ClearSerialPortBuffers(IspEnvironment);
-            Sleep(100);
+            if (!IspEnvironment->ControlLinesWithoutWait) {
+                Sleep(100);
+                ClearSerialPortBuffers(IspEnvironment);
+                Sleep(100);
+            }
             ControlModemLines(IspEnvironment, 0, 1);
             //Longer delay is the Reset signal is conected to an external rest controller
             Sleep(500);
@@ -1688,9 +1713,11 @@ void ResetTarget(ISP_ENVIRONMENT *IspEnvironment, TARGET_MODE mode)
         /* Reset and start uploaded program                     */
         case RUN_MODE:
             ControlModemLines(IspEnvironment, 1, 0);
-            Sleep(100);
-            ClearSerialPortBuffers(IspEnvironment);
-            Sleep(100);
+            if (!IspEnvironment->ControlLinesWithoutWait) {
+                Sleep(100);
+                ClearSerialPortBuffers(IspEnvironment);
+                Sleep(100);
+            }
             ControlModemLines(IspEnvironment, 0, 0);
             Sleep(100);
             break;
@@ -2541,6 +2568,7 @@ int main(int argc, char *argv[])
     IspEnvironment.nQuestionMarks = 100;
     IspEnvironment.DoNotStart = 0;
     IspEnvironment.BootHold = 0;
+    IspEnvironment.BeginSector = 0;
     ReadArguments(&IspEnvironment, argc, argv);               // Read and parse the command line
 
     return PerformActions(&IspEnvironment);                   // Do as requested !
